@@ -34,34 +34,39 @@ sock.connect(server_address)
 cap = cv2.VideoCapture(INDEX_CAMERA)
 
 class Mg400(Thread):
+
     def __init__(self):
         Thread.__init__(self)
         self.start()
         sock.send(Robot_Active.encode())
+
     def run(self):
-        global X_robot, Y_robot, R_robot, color , Robot_Active
+        global  color , Robot_Active
         Robot_Active = "0"
         first_send = 0
+
         while True:
             if cap.isOpened():
                 if Robot_Active == "1" and first_send == 0:
                     sock.send(Robot_Active.encode())
                     first_send = 1
                     print(Robot_Active)
+
                 if first_send == 1:
                     data = sock.recv(50)
                     print("receive: " + str(data))
-                    if data == b'pose_color':
+
+                    if data == b'color':
                         print("Color NO: ",color,": ", str_color[idx_color])
-                        point = str(X_robot) + "," + str(Y_robot) + "," + str(R_robot) + "," + str(color)
-                        sock.send(point.encode())
-                        print("R: " , R_robot)
-                        print("Y: " , Y_robot)
+                        number = str(color)
+                        sock.send(number.encode())
+
                     elif data == b'finish':
                         Robot_Active = "0"
                         first_send = 0
 
 Mg400()
+
 while True:
 
     ret, frame = cap.read()
@@ -104,71 +109,9 @@ while True:
                         color = 2
                     elif str_color[idx_color] == "Yellow":
                         color = 3
-
-                    angle = rect[2]
-                    R_robot = round(-angle,2)
-                    X = ( -1 * 0.204 * cY ) + 318.50
-                    X_robot = round(X,2)
-
-
-                    if R_robot <= 0.00 and R_robot >= -5.00:
-                        Y_robot = 133.00
-
-                    elif R_robot < -5.00 and R_robot >= -10.00:
-                        Y_robot = 134.50
-
-                    elif R_robot < -10.00 and R_robot >= -15.00:
-                        Y_robot = 135.00
-
-                    elif R_robot < -15.00 and R_robot >= -20.00:
-                        Y_robot = 135.27 
-
-                    elif R_robot < -20.00 and R_robot >= -25.00:
-                        Y_robot = 134.20
-
-                    elif R_robot < -25.00 and R_robot >= -30.00:
-                        Y_robot = 132.59 
-
-                    elif R_robot < -30.00 and R_robot >= -35.00:
-                        Y_robot = 131.46 
-
-                    elif R_robot < -35.00 and R_robot >= -40.00:
-                        Y_robot = 130.62 
-
-                    elif R_robot < -40.00 and R_robot >= -45.00:
-                        Y_robot = 130.24 
-
-                    elif R_robot < -45.00 and R_robot >= -50.00:
-                        Y_robot = 130.39 
-
-                    elif R_robot < -50.00 and R_robot >= -55.00:
-                        Y_robot = 130.40 
-
-                    elif R_robot < -55.00 and R_robot >= -60.00:
-                        Y_robot = 129.92 
-
-                    elif R_robot < -60.00 and R_robot >= -65.00:
-                        Y_robot = 130.48 
-
-                    elif R_robot < -65.00 and R_robot >= -70.00:
-                        Y_robot = 131.06 
-
-                    elif R_robot < -70.00 and R_robot >= -75.00:
-                        Y_robot = 131.25 
-
-                    elif R_robot < -75.00 and R_robot >= -80.00:
-                        Y_robot = 131.90 
-
-                    elif R_robot < -80.00 and R_robot >= -85.00:
-                        Y_robot = 132.37
-
-                    elif R_robot < -85.00 and R_robot >= -90.00:
-                        Y_robot = 133.00
-
-                    Robot_Active = str(1)
+                    Robot_Active = "1"
             else:
-                Robot_Active = str(0)  
-                      
+                Robot_Active = "0"
 
         cv2.imshow("Frame", frame)
         cv2.imshow("Roi", roi)
